@@ -1,6 +1,6 @@
 <template>
     <form class="pico-form" @submit.prevent="searchLocation">
-        <input v-model="location" type="text" placeholder="Search location" class="pico-input" />
+        <input v-model="location" type="text" placeholder="Enter location" class="pico-input" />
         <button type="submit" :disabled="!location" class="pico-button pico-button--primary">Search</button>
     </form>
 </template>
@@ -9,12 +9,12 @@
 export default {
     data() {
         return {
-            location: ''
+            location: "",
         }
     },
     methods: {
         searchLocation() {
-            this.$store.dispatch('fetchLocations', this.location)
+            this.$store.dispatch('location/fetchLocations', this.location)
             this.$emit("search", this.location)
         }
     }

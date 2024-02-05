@@ -1,34 +1,72 @@
 <template>
   <div class="pico-container">
     <h1 class="pico-heading--large">Search for a location</h1>
-    <SearchForm />
+    <SearchForm :location="suggestedLocation" @search="searchLocations"/>
+    <h3>Suggested Locations</h3>
     <ul class="pico-list">
-      <li v-for="location in locations" :key="location.place_id" class="pico-list__item">
-        <nuxt-link to="/location" class="pico-link" @click="selectLocation(location)">{{ location.display_name }} ({{
-          location.lat }}, {{ location.lon }})</nuxt-link>
+      <li v-for="location in suggestedLocation" :key="location.id" class="pico-list__item">
+        <nuxt-link to="/location-selection" class="pico-link" @click="selectSuggestedLocation(location)">{{ location.name }}</nuxt-link>
+      </li>
+    </ul>
+    <hr size="1">
+    <h3>Search Results</h3>
+    <ul class="pico-list">
+      <li v-for="location in locations" :key="location.id" class="pico-list__item">
+        <nuxt-link :to="`/location/${location.id}`" class="pico-link" @click="showLocationDetails(location)">{{ location.name }}</nuxt-link>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
 import SearchForm from '~/components/SearchForm.vue'
 
+
 export default {
+
   components: {
     SearchForm
   },
+
+  data() {
+    return {
+      suggestedLocation: "",
+    };
+  },
   computed: {
-    locations() {
-      return this.$store.getters.locations
-    }
+    ...mapState("location", ["locations"]),
   },
   methods: {
-    selectLocation(query) {
-      this.$store.dispatch('location/fetchLocations', query)
-    }
-  }
-}
+    ...mapActions("location", ["fetchLocations"]),
+    searchLocations(query) {
+      this.fetchLocations(query);
+    },
+    selectSuggestedLocation(location) {
+      this.$emit("search", location.name);
+    },
+    showLocationDetails(location) {
+      this.$router.push(`/location/${location.id}`);
+    },
+  },
+
+};
+
+// export default {
+//   components: {
+//     SearchForm
+//   },
+//   computed: {
+//     locations() {
+//       return this.$store.getters.locations
+//     }
+//   },
+//   methods: {
+//     selectLocation(query) {
+//       this.$store.dispatch('location/fetchLocations', query)
+//     }
+//   }
+// }
 </script>
 
 <style scoped>
@@ -63,4 +101,5 @@ export default {
   text-decoration: underline;
   color: blueviolet;
 }
-</style>
+</style> 
+ 
