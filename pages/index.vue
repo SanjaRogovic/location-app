@@ -1,72 +1,66 @@
 <template>
   <div class="pico-container">
     <h1 class="pico-heading--large">Search for a location</h1>
-    <SearchForm :location="suggestedLocation" @search="searchLocations"/>
+    <SearchForm />
     <h3>Suggested Locations</h3>
     <ul class="pico-list">
-      <li v-for="location in suggestedLocation" :key="location.id" class="pico-list__item">
-        <nuxt-link to="/location-selection" class="pico-link" @click="selectSuggestedLocation(location)">{{ location.name }}</nuxt-link>
+      <li v-for="location in suggestedLocations" :key="location.id" class="pico-list__item">
+        <nuxt-link :to="`/location/${location.id}`" class="pico-link" @click="selectSuggestedLocation(location)">{{ location.name }}</nuxt-link>
       </li>
     </ul>
     <hr size="1">
     <h3>Search Results</h3>
     <ul class="pico-list">
-      <li v-for="location in locations" :key="location.id" class="pico-list__item">
-        <nuxt-link :to="`/location/${location.id}`" class="pico-link" @click="showLocationDetails(location)">{{ location.name }}</nuxt-link>
+      <li v-for="location in locations" :key="location.osm_id" class="pico-list__item">
+        <nuxt-link :to="`/location/${location.osm_id}`" class="pico-link" @click="showLocationDetails(location)">{{ location.display_name }}</nuxt-link>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
-import SearchForm from '~/components/SearchForm.vue'
-
+import { mapState, mapActions, mapGetters } from "vuex";
+import SearchForm from '~/components/SearchForm.vue';
 
 export default {
-
   components: {
     SearchForm
   },
-
   data() {
     return {
-      suggestedLocation: "",
+      location: "",
     };
   },
   computed: {
     ...mapState("location", ["locations"]),
+    ...mapGetters("location", ["suggestedLocations"]),
+  },
+  created() {
+    this.fetchSuggestedLocations(); // fetch suggested locations on component mount
   },
   methods: {
-    ...mapActions("location", ["fetchLocations"]),
+    ...mapActions("location", ["fetchLocations", "fetchSuggestedLocations"]),
     searchLocations(query) {
       this.fetchLocations(query);
     },
     selectSuggestedLocation(location) {
-      this.$emit("search", location.name);
+      if (location && location.name) {
+        // Populate the search input with the name of the selected location
+        this.$emit("update:location", location.name);
+        // Trigger fetchLocations with the suggested location name
+        this.fetchLocations(location.name);
+        // Emit an event 
+        this.$emit("search", location.name);
+      } else {
+        console.error("Invalid suggested location:", location);
+        // Handle the error or log it as needed
+      }
     },
     showLocationDetails(location) {
-      this.$router.push(`/location/${location.id}`);
+      this.$router.push(`/location/${location.osm_id}`);
     },
-  },
-
+  }
 };
-
-// export default {
-//   components: {
-//     SearchForm
-//   },
-//   computed: {
-//     locations() {
-//       return this.$store.getters.locations
-//     }
-//   },
-//   methods: {
-//     selectLocation(query) {
-//       this.$store.dispatch('location/fetchLocations', query)
-//     }
-//   }
-// }
 </script>
 
 <style scoped>
@@ -77,7 +71,7 @@ export default {
 }
 
 .pico-heading--large {
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
 }
 
@@ -89,6 +83,7 @@ export default {
 
 .pico-list__item {
   margin-bottom: 0.5rem;
+  font-size: 1.2rem;
 }
 
 .pico-link {
