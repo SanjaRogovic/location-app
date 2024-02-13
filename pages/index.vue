@@ -53,7 +53,7 @@ export default {
         this.$emit("search", location.name);
       } else {
         console.error("Invalid suggested location:", location);
-        // Handle the error or log it as needed
+        
       }
     },
     showLocationDetails(location) {

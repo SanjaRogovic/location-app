@@ -28,7 +28,6 @@ export const actions = {
 
   async fetchSuggestedLocations({ commit }) {
     try {
-      // Simulate an asynchronous operation, for example, an API call
       const response = await new Promise((resolve) => {
         setTimeout(() => {
           resolve({

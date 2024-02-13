@@ -23,7 +23,7 @@ export default {
       const locationId = this.$route.params.osm_id;
       const location = this.getLocationById(locationId);
 
-      // Log the retrieved location to the console for debugging
+     
       console.log("SELECTED LOCATION:", location);
 
       return location;
